@@ -13,22 +13,18 @@ messageString = "Dzien dobry, \n Czy bylby Pan zainteresowany wymiana na kompute
 
 
 
-def sendMessage(messageUrl):
-    driver.get(messageUrl)
+def sendMessage(offerUrl):
     print("Message is sending!")
+    additionalBrowser = Chrome()
+    additionalBrowser.get(offerUrl)
+    messageUrl = driver.find_element_by_class_name('button-email').get_attribute('href')
+    sendMessage(messageUrl)
+    additionalBrowser.get(messageUrl)
     messageTextArea = driver.find_element_by_xpath("//*[@id=\"ask-text\"]")
     messageTextArea.send_keys(messageString)
     submitButton = driver.find_element_by_xpath("//*[@id=\"contact-form\"]/fieldset/div[3]/div/span/input")
     submitButton.click()
-    time.sleep(3)
-    getListOfOffers("https://www.olx.pl/pomorskie/q-macbook/")
 
-
-def openOfferPage(offerUrl):
-    print(offerUrl)
-    driver.get(offerUrl)
-    messageUrl = driver.find_element_by_class_name('button-email').get_attribute('href')
-    sendMessage(messageUrl)
     
 def getNextPageUrl():
     print("Changing to next page")
@@ -55,6 +51,7 @@ def askUserDoesHeWant(offerUrl):
         print("yes")
         offerDatabase = open("offerDatabase.txt", "a")
         offerDatabase.write(offerUrl)
+        sendMessage(offerUrl)
     elif (userKey == 'n' or userKey == 'N'):
         print("no")
     elif (userKey == 'i' or userKey == 'I'):
@@ -83,7 +80,7 @@ def getListOfOffers(offerListUrl):
     
     driver.get(offerListUrl)
     arrayOfferNames = driver.find_elements_by_xpath("//a[contains(@class, 'marginright5') and contains(@class, 'link') and contains(@class, 'linkWithHash') and contains(@class, 'detailsLink') and not(contains(@class, 'detailsLinkPromoted'))]")
-    arrayOfferPrice = driver.find_elements_by_xpath("//p[contains(@class, 'price')]")
+    arrayOfferPrice = driver.find_elements_by_xpath("//table[not(contains(@class, 'promoted-list'))]//p[contains(@class, 'price')]")
     for offerName, offerPrice in zip(arrayOfferNames, arrayOfferPrice):
         print("------------------------------")
         if (checkIfFileContainsString(offerName.get_attribute('href'))):
@@ -111,5 +108,5 @@ def doAuth(loginUrl):
     time.sleep(2) # safe logging in
     getListOfOffers("https://www.olx.pl/pomorskie/q-macbook/")
 
-#doAuth("https://www.olx.pl")
+doAuth("https://www.olx.pl")
 getListOfOffers("https://www.olx.pl/pomorskie/q-macbook/")
