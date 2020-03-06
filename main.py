@@ -2,12 +2,14 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from undetected_chromedriver import Chrome, ChromeOptions
+from selenium.common.exceptions import NoSuchElementException
 import time
+import readchar
 driver = Chrome()
 
-login = "login"
-password = "pass"
-messageString = "Dzien dobry, testuje aktualnie bota, przepraszam za utrudnienie :)"
+login = "gbaranski19@gmail.com"
+password = "Haslo123"
+messageString = "Dzien dobry, \n Czy bylby Pan zainteresowany wymiana na komputer PC?"
 
 
 
@@ -30,39 +32,40 @@ def openOfferPage(offerUrl):
     messageUrl = driver.find_element_by_class_name('button-email').get_attribute('href')
     sendMessage(messageUrl)
     
+def getNextPageUrl():
+    print("Changing to next page")
+    nextPageButtonPath = "//*[@id=\"body-container\"]/div[3]/div/div[8]/span[9]/a"
+    try:
+        nextButtonURL = driver.find_element_by_xpath(nextPageButtonPath).get_attribute('href')
+        print(nextButtonURL)
+        getListOfOffers(nextButtonURL)
+    except NoSuchElementException as exception:
+        print("Its last page!")
 
-def getListOfOffers(url):
+def askUserDoesHeWant(offerUrl):
+    print("If you want it, press Y, else N")
+    userKey = readchar.readkey()
+    if (userKey == "y" or userKey == 'Y'):
+        print("yes")
+    elif (userKey == 'n' or userKey == 'N'):
+        print("no")
+    elif (userKey == readchar.key.CTRL_C):
+        print("Bye")
+        exit()
+    else:
+        askUserDoesHeWant(offerUrl)    
+
+def getListOfOffers(offerListUrl):
     print("Getting list of offers")
-    driver.get(url)
-    offerListNumber = str(3)
-    i = 0
-    while True:
-        i = i + 1
-        offerListNumberString = str(offerListNumber) 
-        if offerListNumber == 10:
-            offerListNumber = 11
-        if offerListNumber == 13:
-            offerListNumber = 14
-        offerPrePath = "//*[@id=\"offers_table\"]/tbody/tr["
-        offerPostPath = "]/td/div/table/tbody/tr[1]/td[2]/div/h3/a"
-        offerPath = offerPrePath + offerListNumberString + offerPostPath
-        pricePrePath = "//*[@id=\"offers_table\"]/tbody/tr["
-        pricePostPath = "]/td/div/table/tbody/tr[1]/td[3]/div/p/strong"
-        pricePath = pricePrePath + offerListNumberString + pricePostPath
-        offerListNumberString = (int(offerListNumberString) - int(3))
-        offerName = driver.find_element_by_xpath(offerPath).text
-        offerUrl = driver.find_element_by_xpath(offerPath).get_attribute('href')
-        priceNumber = driver.find_element_by_xpath(pricePath).text
-        offerListNumber = int(offerListNumber) + int(1)
-        print(str(i) + "." + offerName)
-        print("price: " + priceNumber)
-        print("Do you want it? Write yes/no")
-        shouldISendMessage = input()
-        if (shouldISendMessage == "yes"):
-            openOfferPage(offerUrl)
-            break
-        if offerListNumber == 44:
-            break
+    driver.get(offerListUrl)
+    arrayOfferNames = driver.find_elements_by_xpath("//a[contains(@class, 'marginright5') and contains(@class, 'link') and contains(@class, 'linkWithHash') and contains(@class, 'detailsLink')]")
+    arrayOfferPrice = driver.find_elements_by_xpath("//p[contains(@class, 'price')]")
+    for offerName, offerPrice in zip(arrayOfferNames, arrayOfferPrice):
+        print(offerName.text)
+        print(offerPrice.text)
+        askUserDoesHeWant(offerName.get_attribute("href"))
+    getNextPageUrl()
+
 
 def doAuth(loginUrl):
     driver.get(loginUrl)
@@ -84,4 +87,5 @@ def doAuth(loginUrl):
     time.sleep(2) # safe logging in
     getListOfOffers("https://www.olx.pl/pomorskie/q-macbook/")
 
-doAuth("https://www.olx.pl")
+#doAuth("https://www.olx.pl")
+getListOfOffers("https://www.olx.pl/pomorskie/q-macbook/")
