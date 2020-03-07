@@ -8,7 +8,7 @@ import readchar
 driver = Chrome()
 
 login = "gbaranski19@gmail.com"
-password = "Haslo123"
+password = "pass"
 messageString = "Dzien dobry, \n Czy bylby Pan zainteresowany wymiana na komputer PC?"
 
 
@@ -75,13 +75,11 @@ def checkIfFileContainsString(stringToSearch):
             offerDatabase.close()
  
 def getListOfOffers(offerListUrl):
-    
     print("Getting list of offers")
-    
     driver.get(offerListUrl)
     arrayOfferNames = driver.find_elements_by_xpath("//a[contains(@class, 'marginright5') and contains(@class, 'link') and contains(@class, 'linkWithHash') and contains(@class, 'detailsLink') and not(contains(@class, 'detailsLinkPromoted'))]")
-    arrayOfferPrice = driver.find_elements_by_xpath("//table[not(contains(@class, 'promoted-list'))]//p[contains(@class, 'price')]")
-    for offerName, offerPrice in zip(arrayOfferNames, arrayOfferPrice):
+    arrayOfferPrices = driver.find_elements_by_xpath('//*[@id="offers_table"]/tbody/tr[3]/td/div/table/tbody/tr[1]/td[3]/div/p/strong')
+    for offerName, offerPrice in zip(arrayOfferNames, arrayOfferPrices):
         print("------------------------------")
         if (checkIfFileContainsString(offerName.get_attribute('href'))):
             print("One offer has been skipped!")
@@ -90,7 +88,7 @@ def getListOfOffers(offerListUrl):
             print(offerPrice.text)
             askUserDoesHeWant(offerName.get_attribute("href"))
     getNextPageUrl()
-
+ 
 
 def doAuth(loginUrl):
     driver.get(loginUrl)
@@ -108,5 +106,5 @@ def doAuth(loginUrl):
     time.sleep(2) # safe logging in
     getListOfOffers("https://www.olx.pl/pomorskie/q-macbook/")
 
-doAuth("https://www.olx.pl")
+#doAuth("https://www.olx.pl")
 getListOfOffers("https://www.olx.pl/pomorskie/q-macbook/")
