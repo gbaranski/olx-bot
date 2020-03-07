@@ -37,6 +37,7 @@ def getNextPageUrl():
 
 def additionalOfferInfo(offerUrl):
     print("Printing description of a offer")
+    print("------------------------------")
     additionalBrowser = Chrome()
     additionalBrowser.get(offerUrl)
     offerDescription = additionalBrowser.find_element_by_xpath("//*[@id=\"textContent\"]").text
@@ -55,11 +56,12 @@ def askUserDoesHeWant(offerUrl):
     elif (userKey == 'n' or userKey == 'N'):
         print("no")
     elif (userKey == 'i' or userKey == 'I'):
-        print("------------------------------")
         print(additionalOfferInfo(offerUrl))
+        print("------------------------------")
         askUserDoesHeWant(offerUrl)
     elif (userKey == 'l' or userKey == 'L'):
         print(offerUrl)
+        askUserDoesHeWant(offerUrl)
     elif (userKey == readchar.key.CTRL_C):
         print("Bye")
         driver.exit()
