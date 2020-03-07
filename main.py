@@ -78,7 +78,7 @@ def getListOfOffers(offerListUrl):
     print("Getting list of offers")
     driver.get(offerListUrl)
     arrayOfferNames = driver.find_elements_by_xpath("//a[contains(@class, 'marginright5') and contains(@class, 'link') and contains(@class, 'linkWithHash') and contains(@class, 'detailsLink') and not(contains(@class, 'detailsLinkPromoted'))]")
-    arrayOfferPrices = driver.find_elements_by_xpath('//*[@id="offers_table"]/tbody/tr[3]/td/div/table/tbody/tr[1]/td[3]/div/p/strong')
+    arrayOfferPrices = driver.find_elements_by_xpath('//td[normalize-space(@class)="offer"]//p[@class="price"]/strong')
     for offerName, offerPrice in zip(arrayOfferNames, arrayOfferPrices):
         print("------------------------------")
         if (checkIfFileContainsString(offerName.get_attribute('href'))):
