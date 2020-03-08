@@ -32,12 +32,12 @@ def sendMessage(offer_url):
     print("Your action needed!")
     print("Please tell us if the captcha exists, Write yes or no and press enter")
     user_key_1 = readchar.readkey()
-    if user_key_1 == 'y' or 'Y':
+    if user_key_1 == 'y' or user_key_1 == 'Y':
         print("Please solve captcha and press enter!")
         input()
         submit_button = mainBrowser.find_element_by_xpath(
             "//*[@id=\"contact-form\"]/fieldset/div[4]/div/span/input")
-    elif user_key_1 == 'n' or 'N':
+    elif user_key_1 == 'n' or user_key_1 == 'N':
         submit_button =  mainBrowser.find_element_by_xpath(
             "//*[@id=\"contact-form\"]/fieldset/div[3]/div/span/input")
 
