@@ -2,14 +2,12 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver import Chrome, ChromeOptions
 from selenium.common.exceptions import TimeoutException
-
 from undetected_chromedriver import Chrome, ChromeOptions
 import time
 import os.path
 import readchar
-
-mainBrowser = Chrome()
 
 # CONFIG HERE
 searching_url = "https://www.olx.pl/pomorskie/q-macbook/"
@@ -17,13 +15,7 @@ login = "gbaranski19@gmail.com"
 password = "Haslo123"
 messageString = "Dzien dobry, \n Czy jest możliwość wymiany na komputer PC?"
 
-
-def checkIfMessageCaptchaExist():
-    try:
-        mainBrowser.find_element_by_id("recaptcha-anchor-label")
-    except NoSuchElementException:
-        return True
-    return False
+mainBrowser = Chrome()
 
 
 def sendMessage(offer_url):
@@ -37,15 +29,20 @@ def sendMessage(offer_url):
     mainBrowser.get(message_url)
     message_text_area = mainBrowser.find_element_by_xpath("//*[@id=\"ask-text\"]")
     message_text_area.send_keys(messageString)
-    if checkIfMessageCaptchaExist():
-        print(
-            "Needed your action! OLX.pl has blocked us and you need to complete captcha. Please do it and press enter")
+    print("Your action needed!")
+    print("Please tell us if the captcha exists, Write yes or no and press enter")
+    user_key_1 = readchar.readkey()
+    if user_key_1 == 'y' or 'Y':
+        print("Please solve captcha and press enter!")
         input()
-        submit_button = mainBrowser.find_element_by_xpath("//*[@id=\"contact-form\"]/fieldset/div[4]/div/span/input")
-    else:
-        submit_button = mainBrowser.find_element_by_xpath("//*[@id=\"contact-form\"]/fieldset/div[3]/div/span/input")
+        submit_button = mainBrowser.find_element_by_xpath(
+            "//*[@id=\"contact-form\"]/fieldset/div[4]/div/span/input")
+    elif user_key_1 == 'n' or 'N':
+        submit_button =  mainBrowser.find_element_by_xpath(
+            "//*[@id=\"contact-form\"]/fieldset/div[3]/div/span/input")
+
     submit_button.click()
-    time.sleep(2)
+    time.sleep(5)
     mainBrowser.close()
     mainBrowser.switch_to_window(main_window)
 
@@ -102,11 +99,12 @@ def askUserDoesHeWant(offer_url, is_authenticated):
         print(offer_url)
         askUserDoesHeWant(offer_url, is_authenticated)
     elif user_key == "o" or user_key == "O":
-        additionalBrowser = Chrome()
-        additionalBrowser.get(offer_url)
+        additional_browser = Chrome()
+        additional_browser.get(offer_url)
         print("Press enter when you're done")
         input()
-        additionalBrowser.close()
+        additional_browser.close()
+        askUserDoesHeWant(offer_url, is_authenticated)
     elif user_key == readchar.key.CTRL_C:
         print("Bye")
         mainBrowser.exit()
@@ -126,6 +124,15 @@ def checkIfFileContainsString(string_to_search):
 def getListOffers(is_authenticated, mode):
     if is_authenticated == 'Not logged in':
         print("NOT LOGGED IN, you can't send messages to sellers")
+    if mode == 'criteria':
+        print("Please now input minimum price of offer, 0 for no limit:")
+        min_price = input()
+        print("Please now input maximum price of offer, 0 for no limit: ")
+        max_price = input()
+        print("Please now input what offer title MUST contain, 0 for nothing")
+        title_must_contain = input()
+        print("Please now input what offer title CANNOT contain, 0 for nothing")
+        title_cannot_contain = input()
     print("Getting list of offers")
 
     array_offer_names = mainBrowser.find_elements_by_xpath(
@@ -201,24 +208,22 @@ def mainTab(is_authenticated):
         print("------------------------------")
         print("What would you like to do today?")
     print("1. Auth me on OLX. NEEDED TO SEND MESSAGES! Currently: " + is_authenticated)
-    print("2. Search for new offers using specified criteria")
-    print("3. Search for new offers not using any criteria")
+    print("3. Search for new offers")
     print("4. Scan for offers(program won't ask you about anything, clear scanning)")
     print("5. Settings")
     user_key = readchar.readkey()
     if user_key == '1':
         doAuth()
     elif user_key == '2':
-        print("2")
-    elif user_key == '3':
         mainBrowser.get(searching_url)
         getListOffers(is_authenticated, 'nocriteria')
-    elif user_key == '4':
+    elif user_key == '3':
         mainBrowser.get(searching_url)
         getListOffers(is_authenticated, 'skipAsk')
-    elif user_key == '5':
+    elif user_key == '4':
         settingsTab(is_authenticated)
     elif user_key == readchar.key.CTRL_C:
+        print("Bye")
         exit()
     else:
         print("Select proper key")
