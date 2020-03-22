@@ -11,8 +11,8 @@ import readchar
 
 # CONFIG HERE
 searching_url = "https://www.olx.pl/pomorskie/q-macbook/"
-login = "gbaranski19@gmail.com"
-password = "Haslo123"
+login = "login"
+password = "pass"
 messageString = "Dzien dobry, \n Czy jest możliwość wymiany na komputer PC?"
 
 mainBrowser = Chrome()
